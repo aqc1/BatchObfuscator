@@ -66,7 +66,7 @@ def main():
     obfuscated_payload = payload.obfuscate(initial_payload)
 
     # Write to .bat File
-    print("\n[+] Command: {}\n[+] Payload Size: {} Chaarcters\n[+] Payload:\n{}\n\n[+] Writing to payload.bat...".format(command, len(obfuscated_payload), obfuscated_payload))
+    print("\n[+] Command: {}\n[+] Payload Size: {} Characters\n[+] Payload:\n{}\n\n[+] Writing to payload.bat...".format(command, len(obfuscated_payload), obfuscated_payload))
     with open("payload.bat", "w") as file_handle:
         try:
             file_handle.write(obfuscated_payload)
