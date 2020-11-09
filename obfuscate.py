@@ -4,11 +4,11 @@ import string
 # Global Variables
 random_values = []
 
-# Generate Random String of 5-8 Characters
+# Generate Random String of 4-9 Characters
 def generate_random_string():
     global random_values
     while [ True ]:
-        rand = "".join(random.choice(string.ascii_letters) for _ in range(random.randint(5,9)))
+        rand = "".join(random.choice(string.ascii_letters) for _ in range(random.randint(4,9)))
         if rand not in random_values:
             random_values.append(rand)
             return rand
