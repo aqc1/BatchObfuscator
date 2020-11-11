@@ -14,10 +14,9 @@ def generate_random_string():
             return rand
 
 # Character --> String Map
-def map_characters(cmd, space_token, equals_token):
+def map_characters(cmd, space_token):
     mapping = {}
     mapping[" "] = space_token
-    mapping["="] = equals_token
     for part in cmd:
         if part not in mapping:
             mapping[part] = generate_random_string()
@@ -31,7 +30,7 @@ class Create_Payload:
         self.set_token = generate_random_string()
         self.space_token = generate_random_string()
         self.equals_token = generate_random_string()
-        self.mapping = map_characters(self.cmd, self.space_token, self.equals_token)
+        self.mapping = map_characters(self.cmd, self.space_token)
 
     # Initial Setup for Obfuscation
     def initial_setup(self):
