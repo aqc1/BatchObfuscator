@@ -1,8 +1,9 @@
 # BatchObfuscator
 
-`obfuscate.py`: A simple python script to obfuscate batch commands.
+`obfuscate.py`: A simple Python script to obfuscate batch commands.
+`obfuscate.go`: A Golang alternative.
 
-1) Run the `obfuscate.py` script.
+1) Run the `obfuscate.py` script, or compile a binary from `obfuscate.go`.
 
 2) Enter in a command to obfuscate
 
