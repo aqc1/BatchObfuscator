@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"math/rand"
-	"time"
 	"bufio"
+	"fmt"
+	"log"
+	"math/rand"
 	"os"
 	"strings"
-	"log"
+	"time"
 )
 
 var (
@@ -19,8 +19,8 @@ type obfuscate func(string, map[string]string) string
 
 // Struct to Build Payload
 type payload struct {
-	cmd string
-	mapping map[string]string
+	cmd        string
+	mapping    map[string]string
 	obfuscated obfuscate
 }
 
@@ -33,10 +33,11 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("Command> ")
 	cmd, _ := reader.ReadString('\n')
+	// Get Rid of Line Breaks
 	cmd = strings.ReplaceAll(cmd, "\r\n", "")
 	cmd = strings.ReplaceAll(cmd, "\n", "")
 	p := payload{
-		cmd: cmd,
+		cmd:     cmd,
 		mapping: mapping,
 		obfuscated: func(cmd string, mapping map[string]string) string {
 			var initial, getLetters, command []string
@@ -46,19 +47,23 @@ func main() {
 			initial = append(initial, fmt.Sprintf("set %s=set", mapping["set"]))
 			initial = append(initial, fmt.Sprintf("%%%s%% %s= ", mapping["set"], mapping[" "]))
 			initial = append(initial, fmt.Sprintf("%%%s%%%%%s%%%s==", mapping["set"], mapping[" "], mapping["="]))
-			initialPart =  strings.Join(initial, "\n")
+			initialPart = strings.Join(initial, "\n")
 
 			// Letters Setup
 			for i := range letters {
-				if strings.Contains(cmd, string(letters[i])){
-					getLetters = append(getLetters, fmt.Sprintf("%%%s%%%%%s%%%s%%%s%%%s", mapping["set"],mapping[" "], string(letters[i]),mapping["="], mapping[string(letters[i])]))
+				if strings.Contains(cmd, string(letters[i])) {
+					getLetters = append(getLetters, fmt.Sprintf("%%%s%%%%%s%%%s%%%s%%%s", mapping["set"], mapping[" "], mapping[string(letters[i])], mapping["="], string(letters[i])))
 				}
 			}
-			letterPart = strings.Join(getLetters, " & ")
+			letterPart = strings.Join(getLetters, "&")
 
 			// Command Setup
 			for i := range cmd {
-				command = append(command, fmt.Sprintf("%%%s%%", mapping[string(cmd[i])]))
+				if strings.ContainsAny(string(cmd[i]), string(letters)) || string(cmd[i]) == " " {
+					command = append(command, fmt.Sprintf("%%%s%%", mapping[string(cmd[i])]))
+				} else {
+					command = append(command, fmt.Sprintf("%s", string(cmd[i])))
+				}
 			}
 			commandPart = strings.Join(command, "")
 
@@ -71,7 +76,7 @@ func main() {
 	constructed := p.obfuscated(p.cmd, p.mapping)
 
 	// Output Information
-	fmt.Printf("\n[+] Command: %s\n[+] Payload Size: %d Characters\n[+] Payload:\n%s\n\n[+] Writing to payload.bat...", p.cmd, len(constructed), constructed)
+	fmt.Printf("\n[+] Command: %s\n[+] Payload Size: %d Characters\n[+] Payload:\n%s\n\n[+] Writing to payload.bat...\n", p.cmd, len(constructed), constructed)
 
 	// Write to a File
 	f, err := os.Create("payload.bat")
@@ -79,6 +84,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer f.Close()
+	fmt.Println("[+] Payload Successfully Written!")
 
 	_, err = f.WriteString(constructed)
 	if err != nil {
@@ -97,7 +103,7 @@ func genRandomString(length int) string {
 	return string(str)
 }
 
-// Map Characters A-Z, a-z, "=", " " and "set" to Unique Random Strings 
+// Map Characters A-Z, a-z, "=", " " and "set" to Unique Random Strings
 func mapChars() map[string]string {
 	mapping := make(map[string]string)
 	var randNum int
@@ -138,10 +144,8 @@ func mapChars() map[string]string {
 // Function to Check if Value is Unique in a Map
 func checkUniq(mapping map[string]string, value string) bool {
 	for i := range letters {
-		if val, ok := mapping[string(letters[i])]; ok {
-			if val == value {
-				return false
-			}
+		if val, ok := mapping[string(letters[i])]; ok && val == value {
+			return false
 		}
 	}
 	return true
